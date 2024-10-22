@@ -22,20 +22,25 @@ dp = Dispatcher()
 async def command_start_handler(message: Message) -> None:
     """
     This handler receives messages with `/start` command
+    :param message:
     """
-    await message.answer(f"Hello, {html.bold(message.from_user.full_name)}!")
+
+    logging.info('Command /start handler executing ')
+    await message.answer(f'Привет! Я бот помогающий твоему здоровью.')
 
 
 @dp.message()
-async def echo_handler(message: Message) -> None:
+async def all_message(message: Message) -> None:
     """
-    Handler will forward receive a message back to the sender
+    All messages handler
+    :param message:
     """
-    try:
-        # Send a copy of the received message
-        await message.send_copy(chat_id=message.chat.id)
-    except TypeError:
-        await message.answer("Nice try!")
+
+    logging.info('All message handler executing ')
+    await message.answer(
+        html.quote('Введите команду /start, чтобы начать общение.'),
+        parse_mode=ParseMode.HTML,
+    )
 
 
 async def main() -> None:
