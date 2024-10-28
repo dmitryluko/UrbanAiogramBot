@@ -13,7 +13,7 @@ WEIGHT_PROMPT_MESSAGE = "Введите свой вес:"
 
 
 @calorie_router.message(Command('Calories'))
-@calorie_router.message(F.text == 'Calories')
+@calorie_router.message(F.text == 'Calculate')
 async def calorie_start_handler(message: types.Message, state: FSMContext) -> None:
     """
     :param message: The message object that triggered the handler, containing details about the user input.

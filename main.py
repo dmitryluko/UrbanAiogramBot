@@ -10,7 +10,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 
 from dotenv import load_dotenv
 
@@ -35,6 +35,22 @@ async def start_handler(message: Message):
     :return: Sends a welcome message in response to the start command.
     """
     await message.answer(WELCOME_MESSAGE)
+
+    await message.answer(
+        'Выберите нужное: ',
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(text='Calculate'),
+                    KeyboardButton(text='Info'),
+                ]
+            ],
+            resize_keyboard=True,
+        ),
+    )
+
+
+
 
 
 async def main() -> None:
