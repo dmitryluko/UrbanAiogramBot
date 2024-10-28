@@ -1,48 +1,40 @@
 from aiogram import Router, types, F
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
-from aiogram.utils.formatting import Text
-
 from states.user_state import UserState
 
 calorie_router = Router()
 
 CALCULATION_ERROR_MESSAGE = "Ошибка ввода данных. Пожалуйста, начните заново, введя команду 'Calories'."
+AGE_PROMPT_MESSAGE = "Введите свой возраст:"
+HEIGHT_PROMPT_MESSAGE = "Введите свой рост:"
+WEIGHT_PROMPT_MESSAGE = "Введите свой вес:"
 
 
 @calorie_router.message(Command('Calories'))
 @calorie_router.message(F.text == 'Calories')
 async def calorie_start_handler(message: types.Message, state: FSMContext) -> None:
     await state.set_state(UserState.age)
-    await message.answer(
-        "Введите свой возраст:",
-        reply_markup=ReplyKeyboardRemove(),
-    )
+    await ask_next_question(message, AGE_PROMPT_MESSAGE)
 
 
 @calorie_router.message(UserState.age)
-async def set_age(message: types.Message, state: FSMContext) -> None:
+async def age_handler(message: types.Message, state: FSMContext) -> None:
     await state.update_data(age=message.text)
     await state.set_state(UserState.height)
-    await message.answer(
-        "Введите свой рост:",
-        reply_markup=ReplyKeyboardRemove(),
-    )
+    await ask_next_question(message, HEIGHT_PROMPT_MESSAGE)
 
 
 @calorie_router.message(UserState.height)
-async def set_height(message: types.Message, state: FSMContext) -> None:
+async def height_handler(message: types.Message, state: FSMContext) -> None:
     await state.update_data(height=message.text)
     await state.set_state(UserState.weight)
-    await message.answer(
-        "Введите свой вес:",
-        reply_markup=ReplyKeyboardRemove(),
-    )
+    await ask_next_question(message, WEIGHT_PROMPT_MESSAGE)
 
 
 @calorie_router.message(UserState.weight)
-async def send_calories(message: types.Message, state: FSMContext):
+async def weight_handler(message: types.Message, state: FSMContext):
     await state.update_data(weight=message.text)
     data = await state.get_data()
     try:
@@ -58,6 +50,13 @@ async def send_calories(message: types.Message, state: FSMContext):
 
     await message.answer(f"Ваша норма калорий: {calories} калорий в день.")
     await state.clear()
+
+
+async def ask_next_question(message: types.Message, prompt: str) -> None:
+    await message.answer(
+        prompt,
+        reply_markup=ReplyKeyboardRemove(),
+    )
 
 
 def calculate_calories(age: int, height: int, weight: int) -> float:
