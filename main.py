@@ -30,10 +30,19 @@ dp.include_router(calorie_router)
 
 @dp.message(CommandStart())
 async def start_handler(message: Message):
+    """
+    :param message: The incoming message object containing details such as the message text, sender info, and more.
+    :return: Sends a welcome message in response to the start command.
+    """
     await message.answer(WELCOME_MESSAGE)
 
 
 async def main() -> None:
+    """
+    Initializes and starts the Telegram bot polling.
+
+    :return: None
+    """
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
     await dp.start_polling(bot)
