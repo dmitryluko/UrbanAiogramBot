@@ -8,14 +8,13 @@ from aiogram import Bot, Dispatcher, html
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
-from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 
 from dotenv import load_dotenv
 
 from routers.calories_router import calorie_router
-from states.user_state import UserState
+from routers.errors_router import errors_router
 
 load_dotenv()
 
@@ -25,7 +24,11 @@ WELCOME_MESSAGE = "Welcome! Type 'Calories' to start the calorie calculation pro
 
 dp = Dispatcher(storage=MemoryStorage())
 
-dp.include_router(calorie_router)
+dp.include_routers(
+
+    calorie_router,
+    errors_router,
+)
 
 
 @dp.message(CommandStart())
@@ -48,9 +51,6 @@ async def start_handler(message: Message):
             resize_keyboard=True,
         ),
     )
-
-
-
 
 
 async def main() -> None:
