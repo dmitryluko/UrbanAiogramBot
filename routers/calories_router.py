@@ -1,60 +1,58 @@
+from typing import Union
+
 from aiogram import Router, types, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
+
+from recources.keyboards import inline_menu_kbd
+from recources.messages_constants import MIFFLIN_FORMULA_MESSAGE, AGE_PROMPT_MESSAGE, HEIGHT_PROMPT_MESSAGE, \
+    WEIGHT_PROMPT_MESSAGE, CALCULATION_ERROR_MESSAGE
 from states.user_state import UserState
+from utils.calories import calculate_calories
 
 calorie_router = Router()
 
-CALCULATION_ERROR_MESSAGE = "Ошибка ввода данных. Пожалуйста, начните заново, введя команду 'Calories'."
-AGE_PROMPT_MESSAGE = "Введите свой возраст:"
-HEIGHT_PROMPT_MESSAGE = "Введите свой рост:"
-WEIGHT_PROMPT_MESSAGE = "Введите свой вес:"
+
+# Prompt function
+async def ask_question(message: types.Message, prompt: str) -> None:
+    await message.answer(prompt, reply_markup=ReplyKeyboardRemove())
 
 
-@calorie_router.message(Command('Calories'))
 @calorie_router.message(F.text == 'Calculate')
-async def calorie_start_handler(message: types.Message, state: FSMContext) -> None:
-    """
-    :param message: The message object that triggered the handler, containing details about the user input.
-    :param state: The current state object used to manage the finite state machine (FSM) for user interactions.
-    :return: None
-    """
+async def main_menu(message: types.Message) -> None:
+    await message.answer("Выберите опцию:", reply_markup=inline_menu_kbd())
+
+
+@calorie_router.callback_query(F.data == 'formulas')
+async def show_formulas(callback_query: types.CallbackQuery) -> None:
+    await callback_query.message.answer(MIFFLIN_FORMULA_MESSAGE)
+
+
+@calorie_router.callback_query(F.data == 'calories')
+@calorie_router.message(Command('Calories'))
+async def start_calorie_calculation(interaction: Union[types.CallbackQuery, types.Message], state: FSMContext) -> None:
     await state.set_state(UserState.age)
-    await ask_next_question(message, AGE_PROMPT_MESSAGE)
+    await ask_question(interaction.message if isinstance(interaction, types.CallbackQuery) else interaction,
+                       AGE_PROMPT_MESSAGE)
 
 
 @calorie_router.message(UserState.age)
-async def age_handler(message: types.Message, state: FSMContext) -> None:
-    """
-    :param message: The message object containing the user's input.
-    :param state: The current FSMContext instance, allowing interaction with the user's state.
-    :return: None
-    """
+async def handle_age(message: types.Message, state: FSMContext) -> None:
     await state.update_data(age=message.text)
     await state.set_state(UserState.height)
-    await ask_next_question(message, HEIGHT_PROMPT_MESSAGE)
+    await ask_question(message, HEIGHT_PROMPT_MESSAGE)
 
 
 @calorie_router.message(UserState.height)
-async def height_handler(message: types.Message, state: FSMContext) -> None:
-    """
-    :param message: The message received from the user.
-    :param state: The current state of the finite state machine context.
-    :return: None
-    """
+async def handle_height(message: types.Message, state: FSMContext) -> None:
     await state.update_data(height=message.text)
     await state.set_state(UserState.weight)
-    await ask_next_question(message, WEIGHT_PROMPT_MESSAGE)
+    await ask_question(message, WEIGHT_PROMPT_MESSAGE)
 
 
 @calorie_router.message(UserState.weight)
-async def weight_handler(message: types.Message, state: FSMContext):
-    """
-    :param message: The message object containing user input related to weight.
-    :param state: The FSMContext object for managing the state of the conversation.
-    :return: None
-    """
+async def handle_weight(message: types.Message, state: FSMContext) -> None:
     await state.update_data(weight=message.text)
     data = await state.get_data()
     try:
@@ -67,28 +65,5 @@ async def weight_handler(message: types.Message, state: FSMContext):
         return
 
     calories = calculate_calories(age, height, weight)
-
     await message.answer(f"Ваша норма калорий: {calories} калорий в день.")
     await state.clear()
-
-
-async def ask_next_question(message: types.Message, prompt: str) -> None:
-    """
-    :param message: The incoming message object from the user, typically of type types.Message.
-    :param prompt: The string prompt to be sent back as a response to the user.
-    :return: None. This function sends a response message asynchronously to the user.
-    """
-    await message.answer(
-        prompt,
-        reply_markup=ReplyKeyboardRemove(),
-    )
-
-
-def calculate_calories(age: int, height: int, weight: int) -> float:
-    """
-    :param age: The age of the person in years.
-    :param height: The height of the person in centimeters.
-    :param weight: The weight of the person in kilograms.
-    :return: The estimated basal metabolic rate (BMR) for the person in calories per day.
-    """
-    return 10 * weight + 6.25 * height - 5 * age + 5
