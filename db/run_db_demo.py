@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional, Tuple, Any
 from db.db_manager import DatabaseManager
+from service.balance import get_total_balance, get_average_balance
 
 USER_EMAIL_DOMAIN = '@gmail.com'
 INITIAL_BALANCE = 1000
@@ -22,6 +23,19 @@ def create_user(i: int) -> Dict[str, Any]:
         'age': (i + 1) * 10,
         'balance': INITIAL_BALANCE
     }
+
+
+def get_table_size(db_manager: DatabaseManager) -> int:
+    """
+    Returns the number of rows in the database.
+    
+    Args:
+        db_manager (DatabaseManager): An instance of DatabaseManager to interact with the database.
+    
+    Returns:
+        int: The number of rows in the 'users' table.
+    """
+    return db_manager.get_table_size('users')
 
 
 def add_users(db_manager: DatabaseManager, num_users: int = 10) -> None:
@@ -99,6 +113,15 @@ def main() -> None:
     update_alternate_users_balance(db_mgr)
     delete_every_nth_user(db_mgr)
     print_users(fetch_users_not_of_age(db_mgr))
+    db_mgr.delete('users', 6)
+
+    table_size = get_table_size(db_mgr)
+    total_balance = get_total_balance(db_mgr)
+    average_balance = get_average_balance(db_mgr)
+
+    print(
+        f'Table size: {table_size}, Total balance: {total_balance}, Average balance: {average_balance},'
+        f' Calculated average: {total_balance / table_size}')
 
 
 if __name__ == '__main__':
