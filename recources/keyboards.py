@@ -7,7 +7,7 @@ def main_menu_kbd() -> ReplyKeyboardMarkup:
         keyboard=[
             [
                 KeyboardButton(text='Calculate'),
-                KeyboardButton(text='Buy 🪙'),
+                KeyboardButton(text='Buy'),
                 KeyboardButton(text='Info'),
             ]
         ],
