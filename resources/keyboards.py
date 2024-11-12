@@ -33,5 +33,4 @@ def inline_buying_menu_kbd() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="Product3", callback_data="product_buying"),
         InlineKeyboardButton(text="Product4", callback_data="product_buying"),
     ]
-    keyboard = InlineKeyboardMarkup().add(*buttons)
-    return keyboard
+    return InlineKeyboardMarkup(inline_keyboard=[buttons])

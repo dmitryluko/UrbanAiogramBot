@@ -13,7 +13,7 @@ from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 
 from dotenv import load_dotenv
 
-from recources.keyboards import main_menu_kbd
+from resources.keyboards import main_menu_kbd
 from routers.buying_router import buying_router
 from routers.calories_router import calorie_router
 from routers.errors_router import errors_router

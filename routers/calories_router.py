@@ -5,8 +5,8 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 
-from recources.keyboards import inline_menu_kbd
-from recources.messages_constants import MIFFLIN_FORMULA_MESSAGE, AGE_PROMPT_MESSAGE, HEIGHT_PROMPT_MESSAGE, \
+from resources.keyboards import inline_menu_kbd
+from resources.messages_constants import MIFFLIN_FORMULA_MESSAGE, AGE_PROMPT_MESSAGE, HEIGHT_PROMPT_MESSAGE, \
     WEIGHT_PROMPT_MESSAGE, CALCULATION_ERROR_MESSAGE
 from states.user_state import UserState
 from utils.calories import calculate_calories
