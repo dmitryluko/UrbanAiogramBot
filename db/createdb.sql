@@ -6,3 +6,4 @@ create table Users
     age      INTEGER,
     balance  INTEGER NOT NULL
 );
+
