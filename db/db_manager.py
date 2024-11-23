@@ -223,7 +223,7 @@ class DatabaseManager:
         Initializes the database by executing SQL commands from 'createdb.sql' file.
         """
         try:
-            with open('createdb.sql') as fd:
+            with open('create_product_db.sql') as fd:
                 sql = fd.read()
             self.cursor.executescript(sql)
             self.conn.commit()
@@ -235,7 +235,7 @@ class DatabaseManager:
         Checks if the required tables exist in the database, and initializes the database if not.
         """
         try:
-            self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Users'")
+            self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Products'")
             table_exists = self.cursor.fetchall()
             if not table_exists:
                 self._init_db()
