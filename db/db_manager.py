@@ -20,7 +20,7 @@ class DatabaseManager:
         cursor (sqlite3.Cursor): The SQLite cursor object.
     """
 
-    def __init__(self, db_name: str = 'not_telegram.db', db_dir: str = 'data') -> None:
+    def __init__(self, db_name: str = 'telegram.db', db_dir: str = 'data') -> None:
         """
         Initializes the DatabaseManager with specified database name and directory.
 
@@ -223,7 +223,7 @@ class DatabaseManager:
         Initializes the database by executing SQL commands from 'createdb.sql' file.
         """
         try:
-            with open('create_product_db.sql') as fd:
+            with open('createdb.sql') as fd:
                 sql = fd.read()
             self.cursor.executescript(sql)
             self.conn.commit()

@@ -10,3 +10,5 @@ def add_product(db_manager: DatabaseManager, product: Product) -> None:
         "description": product.description
     }
     db_manager.insert("products", column_values)
+
+def add_base_products():
