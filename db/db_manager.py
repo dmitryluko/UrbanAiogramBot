@@ -88,7 +88,7 @@ class DatabaseManager:
         except sqlite3.Error as e:
             raise DatabaseError(f"Insert operation failed: {e.args[0]}")
 
-    def fetch_all(self, table: str, columns: List[str]) -> List[Dict[str, Any]]:
+    async def fetch_all(self, table: str, columns: List[str]) -> List[Dict[str, Any]]:
         """
         Fetches all rows from the specified table.
 
