@@ -8,6 +8,7 @@ def add_product(db_manager: DatabaseManager, product: Product) -> None:
         "title": product.title,
         "price": product.price,
         "description": product.description
+
     }
     db_manager.insert("products", column_values)
 
