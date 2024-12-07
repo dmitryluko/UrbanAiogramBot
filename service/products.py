@@ -13,6 +13,12 @@ def add_product(db_manager: DatabaseManager, product: Product) -> None:
     db_manager.insert("products", column_values)
 
 def add_base_products(db_manager: DatabaseManager):
-    products = []
+    products = [
+        Product (
+            title="Product1",
+            price=100,
+
+        )
+    ]
 
 

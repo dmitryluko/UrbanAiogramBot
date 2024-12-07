@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 from db.db_manager import DatabaseManager
 from service.balance import get_total_balance, get_average_balance
 
@@ -51,7 +51,7 @@ def add_users(db_manager: DatabaseManager, num_users: int = 10) -> None:
         db_manager.insert(table='users', column_values=user)
 
 
-def update_alternate_users_balance(db_manager: DatabaseManager) -> None:
+async def update_alternate_users_balance(db_manager: DatabaseManager) -> None:
     """
     Updates the balance for every alternate user in the database.
 
@@ -59,11 +59,12 @@ def update_alternate_users_balance(db_manager: DatabaseManager) -> None:
         db_manager (DatabaseManager): An instance of DatabaseManager to interact with the database.
     """
     users = db_manager.fetch_all(table='users', columns=['id'])
-    for user in users[::2]:
+
+    for user in await users[::2]:
         db_manager.update(table='users', column_values={'balance': UPDATED_BALANCE}, condition=f'id = {user["id"]}')
 
 
-def delete_every_nth_user(db_manager: DatabaseManager, n: int = 3) -> None:
+async def delete_every_nth_user(db_manager: DatabaseManager, n: int = 3) -> None:
     """
     Deletes every nth user from the database.
 
@@ -72,7 +73,7 @@ def delete_every_nth_user(db_manager: DatabaseManager, n: int = 3) -> None:
         n (int, optional): Specifies the interval for deletion (every nth user). Defaults to 3.
     """
     user_ids = db_manager.fetch_all(table='users', columns=['id'])
-    for user in user_ids[::n]:
+    for user in await user_ids[::n]:
         db_manager.delete(table='users', row_id=user['id'])
 
 
