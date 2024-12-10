@@ -223,7 +223,8 @@ class DatabaseManager:
         Initializes the database by executing SQL commands from 'createdb.sql' file.
         """
         try:
-            with open('createdb.sql') as fd:
+            print(f'Current Path: {os.getcwd()}')
+            with open('db/sql/create_product_db.sql') as fd:
                 sql = fd.read()
             self.cursor.executescript(sql)
             self.conn.commit()

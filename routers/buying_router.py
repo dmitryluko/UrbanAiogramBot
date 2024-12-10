@@ -2,25 +2,29 @@ from os import path
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile
+
+from db.db_manager import DatabaseManager
+from models.product import Product
 from resources.keyboards import inline_buying_menu_kbd
-from service.buying import get_buying_list
+from service.buying import get_all_products
 
 IMAGE_DIRECTORY = 'assets/images/'
 
 buying_router = Router()
+db_manager = DatabaseManager()
 
 
-def prepare_product_details(product):
+def prepare_product_details(product: Product):
     return (
-        f"Title: {product['title']}\n"
-        f"Description: {product['description']}\n"
-        f"Price: ${product['price']}\n"
+        f"Title: {product.title or 'No title'}\n"
+        f"Description: {product.description or 'No description'}\n"
+        f"Price: ${product.price:.2f}\n"
     )
 
 
 def get_image_path(product):
-    if 'img' in product and product['img']:
-        return path.join(IMAGE_DIRECTORY, product['img'])
+    if 'img_ref' in product and product['img_ref']:
+        return path.join(IMAGE_DIRECTORY, product['img_ref'])
     return None
 
 
@@ -36,7 +40,7 @@ async def buying(message: types.Message, state: FSMContext):
     """
     Handler for the initial buying message. It lists all the products available.
     """
-    products = await get_buying_list()
+    products = await get_all_products(db_manager)
 
     for product in products:
         product_details = prepare_product_details(product)
