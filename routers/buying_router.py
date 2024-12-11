@@ -1,4 +1,6 @@
 from os import path
+from typing import Dict
+
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile
@@ -14,11 +16,11 @@ buying_router = Router()
 db_manager = DatabaseManager()
 
 
-def prepare_product_details(product: Product):
+def prepare_product_details(product: Dict):
     return (
-        f"Title: {product.title or 'No title'}\n"
-        f"Description: {product.description or 'No description'}\n"
-        f"Price: ${product.price:.2f}\n"
+        f"Title: {product.get('title', 'No title')}\n"
+        f"Description: {product.get('description', 'No description')}\n"
+        f"Price: ${product.get('price', 0):.2f}\n"
     )
 
 
