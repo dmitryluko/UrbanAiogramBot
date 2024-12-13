@@ -20,6 +20,7 @@ async def get_all_products(db_manager: DatabaseManager):
         products = await db_manager.fetch_all(PRODUCTS_TABLE, PRODUCTS_COLUMNS)
         if not products:
             await handle_empty_products(db_manager)
+            products = await db_manager.fetch_all(PRODUCTS_TABLE, PRODUCTS_COLUMNS)
         return products
     except DatabaseError as e:
         logger.exception(f"Error fetching products: {e}")
