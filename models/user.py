@@ -1,7 +1,11 @@
+from dataclasses import dataclass, field
+from typing import Optional
+
+
+@dataclass
 class User:
-    def __init__(self, username, mail, age, balance=1000, id=None):
-        self.id = id
-        self.username = username
-        self.mail = mail
-        self.age = age
-        self.balance = balance
+    username: str
+    email: str
+    age: int
+    balance: int = 1000
+    id: Optional[int] = None

@@ -20,7 +20,7 @@ class DatabaseManager:
         cursor (sqlite3.Cursor): The SQLite cursor object.
     """
 
-    def __init__(self, db_name: str = 'telegram.db', db_dir: str = 'data') -> None:
+    def __init__(self, db_name: str, db_dir: str = 'data') -> None:
         """
         Initializes the DatabaseManager with specified database name and directory.
 
@@ -31,6 +31,7 @@ class DatabaseManager:
         self.db_path: str = os.path.join(db_dir, db_name)
         self.conn: sqlite3.Connection = self._connect_to_db()
         self.cursor: sqlite3.Cursor = self.conn.cursor()
+        self.__name = db_name
         self._check_db_exists()
 
     def __del__(self) -> None:
@@ -220,11 +221,11 @@ class DatabaseManager:
 
     def _init_db(self) -> None:
         """
-        Initializes the database by executing SQL commands from 'createdb.sql' file.
+        Initializes the database by executing SQL commands from 'create_user_db.sql' file.
         """
         try:
             print(f'Current Path: {os.getcwd()}')
-            with open('db/sql/create_product_db.sql') as fd:
+            with open(f'db/sql/create_{self.__name}_db.sql') as fd:
                 sql = fd.read()
             self.cursor.executescript(sql)
             self.conn.commit()
