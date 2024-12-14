@@ -2,6 +2,8 @@ import os
 import sqlite3
 from typing import Any, Dict, List, Optional
 
+import logging
+
 
 class DatabaseError(Exception):
     """Custom exception class for database-related errors."""
@@ -38,6 +40,7 @@ class DatabaseManager:
         """Destructor to close the SQLite connection."""
         if self.conn:
             self.conn.close()
+            logging.info('Connection closed successfully.')
 
     def _connect_to_db(self) -> sqlite3.Connection:
         """
