@@ -9,8 +9,10 @@ def main_menu_kbd() -> ReplyKeyboardMarkup:
                 KeyboardButton(text='Calculate'),
                 KeyboardButton(text='Buy'),
                 KeyboardButton(text='Info'),
+                KeyboardButton(text='Registration'),
             ]
         ],
+
         resize_keyboard=True,
     )
 

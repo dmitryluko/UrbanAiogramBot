@@ -33,7 +33,7 @@ class DatabaseManager:
         self.db_path: str = os.path.join(db_dir, db_name)
         self.conn: sqlite3.Connection = self._connect_to_db()
         self.cursor: sqlite3.Cursor = self.conn.cursor()
-        self.__name = db_name
+        self.__db_name = db_name
         self._check_db_exists()
 
     def __del__(self) -> None:
@@ -224,11 +224,11 @@ class DatabaseManager:
 
     def _init_db(self) -> None:
         """
-        Initializes the database by executing SQL commands from 'create_user_db.sql' file.
+        Initializes the database by executing SQL commands from 'create_users_db.sql' file.
         """
         try:
             print(f'Current Path: {os.getcwd()}')
-            with open(f'db/sql/create_{self.__name}_db.sql') as fd:
+            with open(f'db/sql/create_{self.__db_name}_db.sql') as fd:
                 sql = fd.read()
             self.cursor.executescript(sql)
             self.conn.commit()
@@ -240,7 +240,8 @@ class DatabaseManager:
         Checks if the required tables exist in the database, and initializes the database if not.
         """
         try:
-            self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Products'")
+            logging.warning(f'DB name = {self.__db_name}')
+            self.cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.__db_name}'") # FIXME: Table duplication
             table_exists = self.cursor.fetchall()
             if not table_exists:
                 self._init_db()

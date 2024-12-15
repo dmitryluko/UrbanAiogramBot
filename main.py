@@ -17,6 +17,7 @@ from resources.keyboards import main_menu_kbd
 from routers.buying_router import buying_router
 from routers.calories_router import calorie_router
 from routers.errors_router import errors_router
+from routers.registration_router import registration_router
 
 load_dotenv()
 
@@ -25,7 +26,7 @@ TOKEN = getenv("BOT_TOKEN")
 dp = Dispatcher(storage=MemoryStorage())
 
 dp.include_routers(
-
+    registration_router,
     calorie_router,
     buying_router,
     errors_router,
