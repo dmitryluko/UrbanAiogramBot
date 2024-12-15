@@ -16,7 +16,7 @@ DEFAULT_PRODUCT_DETAILS = {
 }
 
 buying_router = Router()
-db_manager = DatabaseManager('product')
+db_manager = DatabaseManager('products')
 
 
 def format_product_details(product: Dict) -> str:

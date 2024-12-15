@@ -4,6 +4,8 @@ from typing import Any, Dict, List, Optional
 
 import logging
 
+logging.getLogger().setLevel(logging.INFO)
+
 
 class DatabaseError(Exception):
     """Custom exception class for database-related errors."""
@@ -232,18 +234,22 @@ class DatabaseManager:
                 sql = fd.read()
             self.cursor.executescript(sql)
             self.conn.commit()
+            log.info(f'Database {self.__db_name} initialized successfully!')
         except (FileNotFoundError, sqlite3.Error) as e:
-            raise DatabaseError(f"Database initialization failed: {e}")
+            raise DatabaseError(f'Database initialization failed: {e}')
 
     def _check_db_exists(self) -> None:
         """
         Checks if the required tables exist in the database, and initializes the database if not.
         """
         try:
-            logging.warning(f'DB name = {self.__db_name}')
-            self.cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.__db_name}'") # FIXME: Table duplication
+            self.cursor.execute(
+                f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.__db_name.capitalize()}'")
             table_exists = self.cursor.fetchall()
             if not table_exists:
+                logging.warning('Table does not exists! ')
                 self._init_db()
+            else:
+                logging.info(f'Database {self.__db_name} exists and checked!')
         except sqlite3.Error as e:
             raise DatabaseError(f"Check database existence operation failed: {e.args[0]}")
