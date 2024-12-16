@@ -11,7 +11,7 @@ db_manager = DatabaseManager('users')
 
 
 # Registration start function
-@registration_router.message(F.Text == 'Registration')
+@registration_router.message(F.text == 'Registration')
 async def sign_up(message: Message, state: FSMContext):
     await message.answer('Enter User Name : ')
     await state.set_state(RegistrationState.username)
