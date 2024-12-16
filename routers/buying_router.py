@@ -1,56 +1,62 @@
 from os import path
-from typing import Dict
+from typing import Dict, List, Optional
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile
 from db.db_manager import DatabaseManager
-from models.product import Product
 from resources.keyboards import inline_buying_menu_kbd
 from service.buying import get_all_products
 
-IMAGE_DIRECTORY = 'assets/images/'
-DEFAULT_PRODUCT_DETAILS = {
-    "title": "No title",
-    "description": "No description",
-    "price": 0.00
+# Constants
+IMAGE_DIRECTORY: str = 'assets/images/'
+DEFAULT_PRODUCT_DETAILS: Dict[str, str | float] = {
+    'title': 'No title',
+    'description': 'No description',
+    'price': 0.00
 }
+NO_PRODUCTS_MESSAGE: str = 'No products available.'
 
-buying_router = Router()
-db_manager = DatabaseManager('products')
+# Initialize router and database manager
+buying_router: Router = Router()
+db_manager: DatabaseManager = DatabaseManager('products')
 
 
-def format_product_details(product: Dict) -> str:
+def generate_image_path(product: Dict) -> Optional[str]:
     """
-    Formats product details for the user.
-    """
-    return (
-        f"Title: {product.get('title', DEFAULT_PRODUCT_DETAILS['title'])}\n"
-        f"Description: {product.get('description', DEFAULT_PRODUCT_DETAILS['description'])}\n"
-        f"Price: ${product.get('price', DEFAULT_PRODUCT_DETAILS['price']):.2f}\n"
-    )
+    Generates the absolute image path for a product if the image reference exists.
 
+    Args:
+        product (Dict): Dictionary containing product details including `img_ref`.
 
-def generate_image_path(product: Dict) -> str | None:
+    Returns:
+        Optional[str]: The absolute image path if `img_ref` exists, else None.
     """
-    Generates the image file path for a product if available.
-    """
-    img_ref = product.get('img_ref')
+    img_ref: Optional[str] = product.get('img_ref')
     return path.join(IMAGE_DIRECTORY, img_ref) if img_ref else None
 
 
-async def send_all_products(message: types.Message, products: list) -> None:
+async def handle_no_products_message(message: types.Message) -> None:
     """
-    Sends product details and images in bulk.
+    Sends a message when there are no products available.
+
+    Args:
+        message (types.Message): The message object representing the user's message.
     """
-    for product in products:
-        product_details = format_product_details(product)
-        image_path = generate_image_path(product)
-        await send_product_message(message, product_details, image_path)
+    await message.answer(NO_PRODUCTS_MESSAGE)
 
 
-async def send_product_message(message: types.Message, product_details: str, image_path: str | None) -> None:
+async def send_product_message(
+        message: types.Message,
+        product_details: str,
+        image_path: Optional[str]
+) -> None:
     """
-    Sends a single product's message with or without an image.
+    Sends a product's details to the user, including an image if available.
+
+    Args:
+        message (types.Message): The message object representing the user's message.
+        product_details (str): A string containing the product's details.
+        image_path (Optional[str]): The file path to the product's image.
     """
     if image_path and path.exists(image_path):
         await message.answer_photo(photo=FSInputFile(image_path), caption=product_details)
@@ -59,24 +65,43 @@ async def send_product_message(message: types.Message, product_details: str, ima
 
 
 @buying_router.message(F.text == 'Buy')
-async def buying(message: types.Message, state: FSMContext) -> None:
+async def buying(message: types.Message, state: FSMContext) -> None: # TODO: Implement business logic
     """
-    Handler for the initial buying message. It lists all the products available.
+    Handles the 'Buy' command by retrieving and listing all available products.
+
+    Args:
+        message (types.Message): The message object representing the user's message.
+        state (FSMContext): The FSM (Finite State Machine) context object for handling states.
     """
-    products = await get_all_products(db_manager)
-    if not products:
-        await message.answer('No products available.')
+    product_list: List[Dict] = await get_all_products(db_manager)
+
+    if not product_list:
+        await handle_no_products_message(message)
         return
 
-    await send_all_products(message, products)
+    # Iterate through products and send product details to the user
+    for product in product_list:
+        product_details: str = "\n".join([
+            f"Title: {product.get('title', DEFAULT_PRODUCT_DETAILS['title'])}",
+            f"Description: {product.get('description', DEFAULT_PRODUCT_DETAILS['description'])}",
+            f"Price: ${product.get('price', DEFAULT_PRODUCT_DETAILS['price']):.2f}"
+        ])
+        image_path: Optional[str] = generate_image_path(product)
+        await send_product_message(message, product_details, image_path)
+
     await message.answer('All products listed above.', reply_markup=inline_buying_menu_kbd())
 
 
 @buying_router.callback_query(F.data == 'product_buying')
 async def handle_the_deal(callback_query: types.CallbackQuery, state: FSMContext) -> None:
     """
-    Handler for dealing with the product-buying process.
+    Handles the callback query when the user confirms a purchase.
+
+    Args:
+        callback_query (types.CallbackQuery): The callback query object representing user action.
+        state (FSMContext): The FSM (Finite State Machine) context object for handling states.
     """
+    await state.clear()
     await callback_query.message.answer(
         'Thank you for your purchase! Your balance has been updated.'
     )

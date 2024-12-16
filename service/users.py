@@ -5,7 +5,7 @@ import logging
 DEFAULT_BALANCE = 1000
 
 
-def is_user_exists(db_manager, username):
+def is_user_exists(db_manager: DatabaseManager, username: str) -> bool:
     """
     :param db_manager: The database manager instance used to interact with the database.
     :param username: The username of the user to check for existence in the database.
